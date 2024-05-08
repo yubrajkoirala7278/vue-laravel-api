@@ -51,7 +51,7 @@ export const useProducts = defineStore("products", () => {
       const response = await addProductApi(data);
       newProduct.value=response.data.product;
     } catch (error) {
-      console.log(error);
+      return false;
     }
   };
   // ==================================================
@@ -71,9 +71,9 @@ export const useProducts = defineStore("products", () => {
   // ====================================================
 
   // ================UPDATE(PUT)============================
-  const updateProduct=async(data)=>{
+  const updateProduct=async(data,slug)=>{
     try{
-        let response=await updateProductApi(data);
+        let response=await updateProductApi(data,slug);
         return response;
     }catch(err){
         error.value=err;

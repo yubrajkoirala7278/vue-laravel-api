@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, reactive, ref, computed } from "vue";
+import { reactive, ref, computed, watch } from "vue";
 import { useProducts } from "./store";
 import { storeToRefs } from "pinia";
 import { headers } from "./utils.js";
@@ -41,6 +41,21 @@ const rules = {
   required: (v) => !!v || "Required",
   price: (v) => (!!v && v > 10) || "Amount must be greater than 10",
 };
+// generate automatic slug from name of product
+watch(
+  () => product.name,
+  (newValue) => {
+    product.slug = generateSlug(newValue);
+  }
+);
+
+function generateSlug(text) {
+  if (text != null) {
+    return text.trim().toLowerCase().replace(/\s+/g, "-");
+  }
+  return null;
+}
+
 // submit form if validated
 const productForm = ref(null);
 const dialog = ref(false);
@@ -51,21 +66,31 @@ function submit() {
     if (valid) {
       disableSubmitBtn.value = true;
       if (btnName.value == "Submit") {
-        await productStore.addProduct(product);
+        // ----------add product-----------
+        let response = await productStore.addProduct(product);
         // append in frontend
-        products.value.unshift({ sno: "#", ...productStore.newProduct });
+        if (response != false) {
+          products.value.unshift({ sno: "#", ...productStore.newProduct });
+          dialog.value = false;
+        }
       } else {
-        let updatedProduct = await productStore.updateProduct(product);
+        // ----------update product-----------
+        let response = await productStore.updateProduct(
+          product,
+          productSlug.value
+        );
         // update in frontend
-        productStore.products = productStore.products.map((currProduct) => {
-          if (currProduct.slug === product.slug) {
-            return { sno: "#", ...updatedProduct }; // Replace the object with updatedObject
-          }
-          return currProduct; // Keep the original object if it doesn't match the ID
-        });
+        if (response != false) {
+          productStore.products = productStore.products.map((currProduct) => {
+            if (currProduct.slug == productSlug.value) {
+              return { sno: "#", ...response }; // Replace the object with updatedObject
+            }
+            return currProduct; // Keep the original object if it doesn't match the ID
+          });
+          dialog.value = false;
+        }
       }
       disableSubmitBtn.value = false;
-      dialog.value = false;
     }
   });
 }
@@ -97,6 +122,7 @@ async function deleteProducts(slug) {
 // ========================================
 
 //============Display current row value in form for updation=========
+const productSlug = ref(null);
 function updateForm(item) {
   Object.assign(product, {
     slug: item.slug,
@@ -106,6 +132,7 @@ function updateForm(item) {
     description: item.description,
     color: item.description,
   });
+  productSlug.value = item.slug;
 }
 // ====================================
 </script>
@@ -136,6 +163,14 @@ function updateForm(item) {
                   v-model="product.name"
                   :rules="[rules.required]"
                   label="Product Name"
+                ></v-text-field>
+              </v-col>
+              <!-- slug -->
+              <v-col cols="12">
+                <v-text-field
+                  v-model="product.slug"
+                  :rules="[rules.required]"
+                  label="Product Slug"
                 ></v-text-field>
               </v-col>
               <!-- Image -->

@@ -23,7 +23,7 @@ export const fetchProductsApi = async (productFilter = {}) => {
 export const deleteProductApi = async (slug) => {
   try {
     const response = await api.delete(`products/${slug}`);
-    displaySuccessMessage("Product deleted successfully");
+    displaySuccessMessage(response.data.message);
   } catch (error) {
     displayErrorMessage("Something went wrong");
     console.log(error);
@@ -44,8 +44,8 @@ export const addProductApi = async (data) => {
     displaySuccessMessage(response.data.message);
     return response;
   } catch (error) {
-    console.log(error);
-    displayErrorMessage("Something went wrong");
+    displayErrorMessage(error.response.data.message);
+    return false;
   }
 };
 // ==============================================
@@ -63,9 +63,9 @@ export const fetchSingleProductsApi = async (slug) => {
 // ==============================================
 
 // =======UPDATE(PUT)============================
-export const updateProductApi = async (data) => {
+export const updateProductApi = async (data,slug) => {
   try {
-    const response = await api.post(`products/${data.slug}`, data, {
+    const response = await api.post(`products/${slug}`, data, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
@@ -76,7 +76,8 @@ export const updateProductApi = async (data) => {
     displaySuccessMessage(response.data.message);
     return response.data.product;
   } catch (err) {
-    displayErrorMessage("Something went wrong!");
+    displayErrorMessage(err.response.data.message);
+    return false;
   }
 };
 // ==============================================
