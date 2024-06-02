@@ -1,7 +1,7 @@
 <script setup></script>
 <template>
     <div>
-        <h2>Projects</h2>
+        <h2>This is admin page</h2>
     </div>
 </template>
 <style>

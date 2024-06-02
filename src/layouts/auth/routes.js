@@ -5,10 +5,4 @@ export const sidebarRoutes = [
       pathName: "admin-home",
       icon: "mdi-view-dashboard",
     },
-    {
-      title: "Products",
-      value: "products",
-      pathName: "admin-products",
-      icon: "mdi-folder",
-    },
   ];

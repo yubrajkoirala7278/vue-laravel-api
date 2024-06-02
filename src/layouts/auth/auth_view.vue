@@ -2,8 +2,9 @@
 import { useAuthLayoutStore } from "./store";
 import { computed } from "vue";
 import AuthSidebar from "./auth_sidebar.vue";
+import { useAuth } from "@/modules/auth/store";
 
-
+const authenticateUser = useAuth();
 const authLayoutStore = useAuthLayoutStore();
 
 
@@ -16,6 +17,9 @@ function toggleDrawer() {
 function railDrawer(rail) {
   authLayoutStore.railDrawer(rail);
 }
+async function logout(){
+  const response = await authenticateUser.logoutUser();
+}
 </script>
 
 <template>
@@ -24,7 +28,7 @@ function railDrawer(rail) {
       <v-app-bar-nav-icon @click="toggleDrawer"></v-app-bar-nav-icon>
     </template>
     <template v-slot:append>
-      <v-btn icon="mdi-logout"></v-btn>
+      <v-btn icon="mdi-logout" @click="logout"></v-btn>
     </template>
   </v-app-bar>
 
